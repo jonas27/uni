@@ -186,26 +186,19 @@ def compute_tracebacks(seq1, seq2, d, p, q,
     il,jl=size(d)
     previous = find_previous(((il-1,jl-1), 'd'),seq1, seq2, d, p, q,cost_open, cost_extend, substitution)
     paths = [previous]
-    for x in range(1000):
+    for x in range(20):
         li = []
-        # print("preve")
-        # print(previous)
-        # print(li)
         for pr in previous:
-            # print(pr)
-            print("pr")
-            print(pr)
+            if pr[0] == (0,0):
+                continue
             pre = find_previous(pr ,seq1, seq2, d, p, q,cost_open, cost_extend, substitution)
             for fi in pre:
-                if fi[0] != (0,0):
-                    li.append(pre[0])
-        # print("li")
-        # print(li)
-        if len(li) == 0:
+                li.append(fi)
+        if x>15:
             break
         previous = li
-        # print("preve2")
-        # print(previous)
+        if len(li) == 0:
+            break
         paths.append(li)
 
     return paths
@@ -215,7 +208,7 @@ def compute_tracebacks_test():
     d,p,q = complete_d_p_q_computation(seq1,seq2,-3,-1,com)
     p = compute_tracebacks(seq1, seq2, d,p,q,-3,-1,com)
     print("tracebacks")
-    print(p)
+    show(p)
     
     
 def find_previous(cell, seq1, seq2, d, p, q,
@@ -224,27 +217,31 @@ def find_previous(cell, seq1, seq2, d, p, q,
     """
     Implement a search for all possible previous cells.
     """
+    # if second last field we go to d in last field 
+    if cell[0] == (0,1) or cell[0] == (1,0):
+        return [((0,0),'d')]
     i,j, = cell[0]
     curr = None
     if cell[1] == 'd':
         curr = d[i][j]
+        if curr ==  d[i-1][j-1]+substitution(seq1[i],seq2[j]): 
+            parent_cells.append(((i-1,j-1),'d'))
+        if curr == p[i][j]:
+            parent_cells.append(find_previous(((i,j),'p') ,seq1, seq2, d, p, q,cost_open, cost_extend, substitution))
+        if curr == q[i][j]:
+            parent_cells.append(((i,j),'q'))
     if cell[1] == 'p':
         curr = p[i][j]
+        if curr ==  d[i-1][j]+cost_open+cost_extend: 
+            parent_cells.append(((i-1,j),'d'))
+        if curr == p[i-1][j]+cost_extend:
+            parent_cells.append(((i-1,j),'p'))
     if cell[1] == 'q':
         curr = q[i][j]
-    # print(max([d[i-1][j-1]+substitution(seq1[i],seq2[j])]))
-    # if second last field we go to d in last field 
-    if cell[0] == (0,1) or cell[0] == (1,0):
-        return [((0,0),'d')]
-    
-    if curr ==  max([d[i-1][j-1]+substitution(seq1[i],seq2[j]),p[i][j],q[i][j]]):
-        parent_cells.append(((i-1,j-1),'d'))
-    if curr == max([d[i-1][j]+cost_open+cost_extend,p[i-1][j]+cost_extend]):
-        parent_cells.append(((i-1,j-1),'p'))
-    if curr == max([d[i][j-1]+cost_open+cost_extend,q[i][j-1]+cost_extend]):
-        parent_cells.append(((i,j),'q'))
-    # print("parent cell")
-    # print(parent_cells)
+        if curr ==  d[i][j-1]+cost_open+cost_extend: 
+            parent_cells.append(((i,j-1),'d'))
+        if curr == q[i][j-1]+cost_extend:
+            parent_cells.append(((i,j-1),'1'))
     return parent_cells
 
 def find_previous_test():
