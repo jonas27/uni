@@ -1,23 +1,51 @@
+import gotoh_helpers as helpers
+
+def gotoh(fasta_file_1, fasta_file_2, cost_open, cost_extension, file_substitution_matrix=None):
+    seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
+    substition = None
+    if file_substitution_matrix == None:
+        substition = com  
+    else:
+        substition = read_substitution_matrix(file_substitution_matrix)
+    d,p,q = complete_d_p_q_computation(seq1,seq2, cost_open, cost_extension,substition)
+    tracebacks = compute_tracebacks(seq1, seq2, d,p,q, cost_open,cost_extension,substition)
+    alignments = []
+    for t in tracebacks:
+        alignments.append(build_alignment(seq1,seq2,t))
+    score = score_of_alignment(alignments[0][0],alignments[0][1],cost_open,cost_extension,substition)
+    return score, alignments
+
+
+class Gotoh:
+    def run(fasta_file_1, fasta_file_2, cost_gap_open, file_substitution_matrix=None):
+        seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
+        alignment_score, alignments = [],[]
+        return alignment_score, alignments
+
 # Read and append empty sapce in beginning
 def read_fasta_file(fasta_file):
     line = open(fasta_file).readlines()[1].replace("\n","")
     sequence = list(" " + line)
     return sequence
 
-def read_fasta_file_test():
-    sequence = read_fasta_file("data/s1.fasta")
-    if ''.join(sequence) != ' ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN':
-        print("Error reading fasta file.")
-
-def score_of_alignment(align_seq1, align_seq2, cost_gap_open, 
-                       cost_gap_extension, substitutions=None):
+def score_of_alignment(align_seq1, align_seq2, cost_open, 
+                       cost_extension, substitution=None):
     """
     A nice helper function which computes the score of the given alignment.
     This is only used for the self check.
     Input example:
-    --CG
+    __CG
     AACA
     """
+    score = 0
+    for i in range(max([len(align_seq1),len(align_seq2)])):
+        if align_seq1[i] == '_' or align_seq2[i] == '_':
+            if align_seq1[i-1] == '_' or align_seq2[i-1] == '_':
+                score+=cost_extension
+            else:
+                score+=cost_open + cost_extension
+        else:
+            score+=substitution(align_seq1[i],align_seq2[i])
     return score
 
 def read_substitution_matrix(file_substitution_matrix):
@@ -49,11 +77,6 @@ def read_substitution_matrix(file_substitution_matrix):
             scores[(matrix[0][col],matrix[row][0])] = int(matrix[row][col])
     return scores
 
-def read_substitution_matrix_test():
-    scores = read_substitution_matrix("data/pam250.txt")
-    if scores.get(('*','*')) != 1 or scores.get(('R','A')) != -2:
-        print("Error in converting to dict")
-
 
 def initd(seq1, seq2, cost_open, cost_extend):
     """
@@ -69,18 +92,12 @@ def initd(seq1, seq2, cost_open, cost_extend):
             counter+=1
     matrix.append(row)
     counter = 1
-    for i in range(1,len(seq1)):
+    for _ in range(1,len(seq1)):
         row = [None if x != ' ' else cost_open + counter * cost_extend for x in seq2]
         counter+=1
         matrix.append(row)
 
     return matrix
-def initd_test():
-    m = initd([" ","C","G"],[" ","C","C","G","A"], -3, -1)
-    show(m)
-    size(m)
-
-
 
 def initp(seq_1, seq_2):
     matrix = []
@@ -88,17 +105,9 @@ def initp(seq_1, seq_2):
     col = [-10**6 if x != ' ' else 0 for x in seq_2]
     matrix.append(col)
     for i in range(1,len(seq_1)):
-        col = [-10**10 if x != ' ' else "-" for x in seq_2]
+        col = [-10**10 if x != ' ' else -10**10 for x in seq_2]
         matrix.append(col)
     return matrix
-
-def initp_test():
-    # seq1, seq2 = read_fasta_file("data/s1.fasta"),read_fasta_file("data/s2.fasta")
-    # result = init_matrix_p(seq1,seq2)
-    seq1, seq2 = [" ","A","B"],[" ","A","B","C","D","E"]
-    result = initp(seq1,seq2)
-    show(result)
-
 
 def initq(seq_1, seq_2):
     matrix = []
@@ -110,33 +119,6 @@ def initq(seq_1, seq_2):
         matrix.append(col)
     return matrix
 
-def initq_test():
-    seq1, seq2 = [" ","A","B"],[" ","A","B","C","4"]
-    result = initq(seq1,seq2)
-    show(result)
-    size(result)
-
-
-def show(matrix):
-    for row in matrix:
-        print(row)
-
-def size(matrix):
-    row = len(matrix)
-    col = len(matrix[0][:])
-    for c in matrix:
-        if len(c) != col:
-            print(matrix)
-            raise Exception('Matrix not rectangular')
-    return row, col
-
-def show_size_test():
-    seq1, seq2 = [" ","A","B"],[" ","A","B","C","4"]
-    result = initp(seq1,seq2)
-    show(result)
-    size(result)
-
-
 def complete_d_p_q_computation(seq1, seq2, cost_open, cost_extend, substitution=None):
     """
     Implement the recursive computation of matrices D, P and Q
@@ -146,8 +128,8 @@ def complete_d_p_q_computation(seq1, seq2, cost_open, cost_extend, substitution=
     q = initq(seq1,seq2)
     # d = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]]
     # all matrices have the same size, so iterate over entire matrix
-    for i in range(1,size(d)[0]):
-        for j in range(1,size(d)[1]):
+    for i in range(1,helpers.size(d)[0]):
+        for j in range(1,helpers.size(d)[1]):
             p[i][j] = max([d[i-1][j]+cost_open+cost_extend,p[i-1][j]+cost_extend])
             q[i][j] = max([d[i][j-1]+cost_open+cost_extend,q[i][j-1]+cost_extend])
             # cost = 1 if seq1[i] == seq2[j] else -1
@@ -156,12 +138,6 @@ def complete_d_p_q_computation(seq1, seq2, cost_open, cost_extend, substitution=
 
 def com(a,b):
     return 1 if a == b else -1
-
-def complete_d_p_q_computation_test():
-    seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
-    d,p,q = complete_d_p_q_computation(seq1,seq2,-3,-1,com)
-    if d[1] != [-4, 1, -3, -4, -5] or p[2] != ['-', -3, -7, -8, -9] or q[3] != [-1000000, -10, -8, -8, -3]:
-        raise Exception('matrix computation is wrong!') 
 
 
 """
@@ -174,8 +150,6 @@ Cell example: ((0, 2), "d")
 Path example: [((2, 4), 'd'), ((2, 4), 'q'), ((2, 3), 'q'), ((2, 2), 'd'), ((1, 1), 'd'), ((0, 0), 'd')]
 
 """
-# seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
-# d,p,q = complete_d_p_q_computation(seq1,seq2,-3,-1,com)
 def compute_tracebacks(seq1, seq2, d, p, q,
                            cost_open, cost_extend, substitution=None):
     """
@@ -183,82 +157,104 @@ def compute_tracebacks(seq1, seq2, d, p, q,
     Implement 'find_all_previous' and check_complete first.
    
     """
-    il,jl=size(d)
-    previous = find_previous(((il-1,jl-1), 'd'),seq1, seq2, d, p, q,cost_open, cost_extend, substitution)
-    paths = [previous]
-    for x in range(20):
-        li = []
-        for pr in previous:
-            if pr[0] == (0,0):
-                continue
-            pre = find_previous(pr ,seq1, seq2, d, p, q,cost_open, cost_extend, substitution)
-            for fi in pre:
-                li.append(fi)
-        if x>15:
-            break
-        previous = li
-        if len(li) == 0:
-            break
-        paths.append(li)
-
-    return paths
-
-def compute_tracebacks_test():
-    seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
-    d,p,q = complete_d_p_q_computation(seq1,seq2,-3,-1,com)
-    p = compute_tracebacks(seq1, seq2, d,p,q,-3,-1,com)
-    print("tracebacks")
-    show(p)
-    
+    il,jl=helpers.size(d)
+    cells = find_previous(((il-1,jl-1), 'd',0),seq1, seq2, d, p, q,cost_open, cost_extend, [], substitution)
+    paths = []
+    path = [((il-1,jl-1), 'd',0)]
+    for p in range(1,len(cells)):
+        if cells[p-1][2] == cells[p][2]-1:
+            path.append(cells[p])
+        else:
+            paths.append(path)
+            path = path[:cells[p][2]]
+            path.append(cells[p])
+    paths.append(path)
+    rev = [x[::-1] for x in paths]
+    return rev
     
 def find_previous(cell, seq1, seq2, d, p, q,
-                   cost_open, cost_extend, substitution=None):
+                   cost_open, cost_extend, history, substitution=None):
     parent_cells = []
     """
     Implement a search for all possible previous cells.
     """
     # if second last field we go to d in last field 
-    if cell[0] == (0,1) or cell[0] == (1,0):
-        return [((0,0),'d')]
-    i,j, = cell[0]
+    if cell[0] == (0,1) or cell[0] == (1,0) or (cell[0] == (1,1) and cell[1] == 'd'):
+        history.append(cell)
+        history.append(((0,0),'d', cell[2]+1))
+        return history
+    else:
+        history.append(cell)
+    i,j = cell[0]
     curr = None
+    counter = cell[2]+1
     if cell[1] == 'd':
         curr = d[i][j]
         if curr ==  d[i-1][j-1]+substitution(seq1[i],seq2[j]): 
-            parent_cells.append(((i-1,j-1),'d'))
+            parent_cells.append(find_previous(((i-1,j-1),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
         if curr == p[i][j]:
-            parent_cells.append(find_previous(((i,j),'p') ,seq1, seq2, d, p, q,cost_open, cost_extend, substitution))
+            parent_cells.append(find_previous(((i,j),'p', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
         if curr == q[i][j]:
-            parent_cells.append(((i,j),'q'))
+            parent_cells.append(find_previous(((i,j),'q', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
     if cell[1] == 'p':
         curr = p[i][j]
         if curr ==  d[i-1][j]+cost_open+cost_extend: 
-            parent_cells.append(((i-1,j),'d'))
+            parent_cells.append(find_previous(((i-1,j),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
         if curr == p[i-1][j]+cost_extend:
-            parent_cells.append(((i-1,j),'p'))
+            parent_cells.append(find_previous(((i-1,j),'p', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
     if cell[1] == 'q':
         curr = q[i][j]
         if curr ==  d[i][j-1]+cost_open+cost_extend: 
-            parent_cells.append(((i,j-1),'d'))
+            parent_cells.append(find_previous(((i,j-1),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
         if curr == q[i][j-1]+cost_extend:
-            parent_cells.append(((i,j-1),'1'))
-    return parent_cells
+            parent_cells.append(find_previous(((i,j-1),'q', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
+    return history
 
-def find_previous_test():
+def build_alignment(seq1, seq2, traceback):
+    s1, s2, signs = [], [], []
+    traceback = traceback[1:]
+    c1,c2 = 0,0
+    for cell in traceback:
+        # we never stay in 0,0 so this isn't needed. Left as a reminder. 
+        # TODO: delete soon, for visuals
+        if cell[0][0] == c1 and cell[0][1] == c2:
+            # s1.append('_')
+            # s2.append('_')
+            pass
+        elif cell[0][0] == c1:
+            s1.append('_')
+            s2.append(seq2[cell[0][1]])
+            signs.append(' ')
+        elif cell[0][1] == c2:
+            s2.append('_')
+            s1.append(seq1[cell[0][0]])
+            signs.append(' ')
+        else:
+            s1.append(seq1[cell[0][0]])
+            s2.append(seq2[cell[0][1]])
+            if seq1[cell[0][0]] ==seq2[cell[0][1]]:
+                signs.append('*')
+            else:
+                signs.append('|')
+        c1,c2 = cell[0]
+    return s1,s2,signs
+        
+
+
+def visualize_traceback_test():
     seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
-    d,p,q = complete_d_p_q_computation(seq1,seq2,-3,-1,com)
-    p = find_previous(((3,4), "d"), seq1, seq2, d,p,q,-3,-1,com)
-    if p[0][1] != 'd':
-        print(p[0][1])
-        raise Exception('find previous is wrong!') 
-
-def check_complete(path):
-    """
-    Implement a function which checks if the traceback path is complete.
-    """
-
-
-if __name__ == "__main__":
-    # find_previous_test()
-    compute_tracebacks_test()
-    # compute_all_tracebacks(seq1,seq2,d,p,q,-3,-1)
+    traceback = [((0, 0), 'd', 4), ((0, 1), 'd', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)]
+    s1,s2,signs = visualize_traceback(seq1, seq2, traceback)
+    print(s1)
+    print(signs)
+    print(s2)
+    traceback = [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((1, 2), 'q', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)]
+    s1,s2,signs = visualize_traceback(seq1, seq2, traceback)
+    print(s1)
+    print(signs)
+    print(s2)
+    traceback = [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((2, 2), 'd', 3), ((3, 3), 'd', 2), ((3, 4), 'q', 1), ((3, 4), 'd', 0)]
+    s1,s2,signs = visualize_traceback(seq1, seq2, traceback)
+    print(s1)
+    print(signs)
+    print(s2)
