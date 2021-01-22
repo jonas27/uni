@@ -45,6 +45,15 @@ class Test_GotohUnitTest(unittest.TestCase):
             self.assertEqual(should[2],''.join(alignments[0][0]))
             self.assertEqual(should[3],''.join(alignments[0][1]))
             self.assertEqual(should[4],''.join(alignments[0][2]))
+        g = gotoh.Gotoh()
+        for t in tests:
+            score, alignments = g.run(t[0],t[1],t[2],t[3])
+            should = t[5]
+            self.assertEqual(should[0],len(alignments))
+            self.assertEqual(should[1],score)
+            self.assertEqual(should[2],''.join(alignments[0][0]))
+            self.assertEqual(should[3],''.join(alignments[0][1]))
+            self.assertEqual(should[4],''.join(alignments[0][2]))
 
 if __name__ == "__main__":
     unittest.main()

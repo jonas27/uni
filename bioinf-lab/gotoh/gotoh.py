@@ -11,10 +11,17 @@ def gotoh(seq1, seq2, cost_open, cost_extension, file_substitution_matrix=None):
     return score, alignments
 
 class Gotoh:
-    def run(fasta_file_1, fasta_file_2, cost_gap_open, file_substitution_matrix=None):
-
-        alignment_score, alignments = [],[]
-        return alignment_score, alignments
+    def run(self, seq1, seq2, cost_open, cost_extension, file_substitution_matrix=None):
+        # seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
+        if file_substitution_matrix == None:
+            file_substitution_matrix = dna_sub  
+        d,p,q = complete_d_p_q_computation(seq1,seq2, cost_open, cost_extension,file_substitution_matrix)
+        tracebacks = compute_tracebacks(seq1, seq2, d,p,q, cost_open,cost_extension,file_substitution_matrix)
+        alignments = []
+        for t in tracebacks:
+            alignments.append(build_alignment(seq1,seq2,t))
+        score = score_of_alignment(alignments[0][0],alignments[0][1],cost_open,cost_extension,file_substitution_matrix)
+        return score, alignments
 
 
 def score_of_alignment(align_seq1, align_seq2, cost_open, 
