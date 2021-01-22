@@ -1,16 +1,37 @@
 import unittest
 import gotoh
+from gotoh_helpers import read_fasta_file
 
 class Test_GotohUnitTest(unittest.TestCase):
 
     def test_gotoh1(self):
         tests = [
-            # ('data/test1_1.fasta', 'data/test1_2.fasta',  -3,-1,None,
-            # (10,-10,
-            # 'AATCCGCTAGAAACCCTTAG',
-            # '_ATC______TTACCTTCAT',
-            # ' ***      ||***|*|*|',)),
-            ('data/test2_1.fasta', 'data/test2_2.fasta',  -3,-1,None,
+            # (helpers.read_substitution_matrix('data/pam250.txt')
+            #  Edge case testing
+            ([' ','A','T'], [' ','T','A'],  -3,-1,None,
+            (1,-2,
+            'AT',
+            'TA',
+            '||',)),
+            ([' ','A','T','T','A'], [' ','T','A'],  -3,-1,None,
+            (1,-3,
+            'ATTA',
+            '__TA',
+            '  **',)),
+            ([' ','T','A'],[' ','A','T','T','A'],  -3,-1,None,
+            (1,-3,
+            '__TA',
+            'ATTA',
+            '  **',)),
+            # Real tests
+            (read_fasta_file('data/test1_1.fasta'), read_fasta_file('data/test1_2.fasta'),
+            -3,-1,None,
+            (10,-10,
+            'AATCCGCTAGAAACCCTTAG',
+            '_ATC______TTACCTTCAT',
+            ' ***      ||***|*|*|',)),
+            (read_fasta_file('data/test2_1.fasta'), read_fasta_file('data/test2_2.fasta'),
+            -3,-1,None,
             (1,2,
             'ATTCACTAGATTACCTTCACT',
             '________GATTACCTTCACT',

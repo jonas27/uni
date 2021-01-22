@@ -1,32 +1,21 @@
-import gotoh_helpers as helpers
-
-def gotoh(fasta_file_1, fasta_file_2, cost_open, cost_extension, file_substitution_matrix=None):
-    seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
-    substition = None
+def gotoh(seq1, seq2, cost_open, cost_extension, file_substitution_matrix=None):
+    # seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
     if file_substitution_matrix == None:
-        substition = com  
-    else:
-        substition = read_substitution_matrix(file_substitution_matrix)
-    d,p,q = complete_d_p_q_computation(seq1,seq2, cost_open, cost_extension,substition)
-    tracebacks = compute_tracebacks(seq1, seq2, d,p,q, cost_open,cost_extension,substition)
+        file_substitution_matrix = dna_sub  
+    d,p,q = complete_d_p_q_computation(seq1,seq2, cost_open, cost_extension,file_substitution_matrix)
+    tracebacks = compute_tracebacks(seq1, seq2, d,p,q, cost_open,cost_extension,file_substitution_matrix)
     alignments = []
     for t in tracebacks:
         alignments.append(build_alignment(seq1,seq2,t))
-    score = score_of_alignment(alignments[0][0],alignments[0][1],cost_open,cost_extension,substition)
+    score = score_of_alignment(alignments[0][0],alignments[0][1],cost_open,cost_extension,file_substitution_matrix)
     return score, alignments
-
 
 class Gotoh:
     def run(fasta_file_1, fasta_file_2, cost_gap_open, file_substitution_matrix=None):
-        seq1, seq2 = read_fasta_file(fasta_file_1), read_fasta_file(fasta_file_2)
+
         alignment_score, alignments = [],[]
         return alignment_score, alignments
 
-# Read and append empty sapce in beginning
-def read_fasta_file(fasta_file):
-    line = open(fasta_file).readlines()[1].replace("\n","")
-    sequence = list(" " + line)
-    return sequence
 
 def score_of_alignment(align_seq1, align_seq2, cost_open, 
                        cost_extension, substitution=None):
@@ -47,36 +36,6 @@ def score_of_alignment(align_seq1, align_seq2, cost_open,
         else:
             score+=substitution(align_seq1[i],align_seq2[i])
     return score
-
-def read_substitution_matrix(file_substitution_matrix):
-    """
-    Implement reading the scores file.
-    It can be stored as a dictionary of example: scores[("A", "R")] = -1
-    """
-    lines = open(file_substitution_matrix).readlines()
-    matrix = []
-    # Convert to matrix
-    firstline = True
-    for l in lines:
-        if l[0]=='#':
-            continue
-        if firstline :
-            l = l.replace("   ","-  ").replace(" ","").replace("\n","")
-            matrix.append(list(l))
-            firstline=False
-        else:
-            line=[]
-            line.append(list(l)[0])
-            istr = [x.strip('') for x in ''.join(list(l)[3:]).replace("\n","").replace("  ", " ").split(" ")]
-            line.extend(istr)
-            matrix.append(line)
-
-    scores = dict()
-    for row in range(1,len(matrix)):
-        for col in range(1,len(matrix[0])):
-            scores[(matrix[0][col],matrix[row][0])] = int(matrix[row][col])
-    return scores
-
 
 def initd(seq1, seq2, cost_open, cost_extend):
     """
@@ -128,15 +87,15 @@ def complete_d_p_q_computation(seq1, seq2, cost_open, cost_extend, substitution=
     q = initq(seq1,seq2)
     # d = [[1,2,3,4,5],[6,7,8,9,10],[11,12,13,14,15]]
     # all matrices have the same size, so iterate over entire matrix
-    for i in range(1,helpers.size(d)[0]):
-        for j in range(1,helpers.size(d)[1]):
+    for i in range(1,size(d)[0]):
+        for j in range(1,size(d)[1]):
             p[i][j] = max([d[i-1][j]+cost_open+cost_extend,p[i-1][j]+cost_extend])
             q[i][j] = max([d[i][j-1]+cost_open+cost_extend,q[i][j-1]+cost_extend])
             # cost = 1 if seq1[i] == seq2[j] else -1
             d[i][j] = max([d[i-1][j-1]+substitution(seq1[i],seq2[j]),p[i][j],q[i][j]])
     return d,p,q
 
-def com(a,b):
+def dna_sub(a,b):
     return 1 if a == b else -1
 
 
@@ -157,7 +116,7 @@ def compute_tracebacks(seq1, seq2, d, p, q,
     Implement 'find_all_previous' and check_complete first.
    
     """
-    il,jl=helpers.size(d)
+    il,jl=size(d)
     cells = find_previous(((il-1,jl-1), 'd',0),seq1, seq2, d, p, q,cost_open, cost_extend, [], substitution)
     paths = []
     path = [((il-1,jl-1), 'd',0)]
@@ -179,15 +138,21 @@ def find_previous(cell, seq1, seq2, d, p, q,
     Implement a search for all possible previous cells.
     """
     # if second last field we go to d in last field 
-    if cell[0] == (0,1) or cell[0] == (1,0) or (cell[0] == (1,1) and cell[1] == 'd'):
-        history.append(cell)
-        history.append(((0,0),'d', cell[2]+1))
-        return history
-    else:
-        history.append(cell)
     i,j = cell[0]
     curr = None
     counter = cell[2]+1
+    history.append(cell)
+    if cell[0] == (0,1) or cell[0] == (1,0) or (cell[0] == (1,1) and cell[1] == 'd'):
+        history.append(((0,0),'d', cell[2]+1))
+        return history
+    # This catches the case where we open a gap in first position
+    elif cell[0][0] == 0 and cell[1] == 'd':
+        parent_cells.append(find_previous(((i,j-1),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
+        return history
+    elif cell[0][1] == 0 and cell[1] == 'd':
+        parent_cells.append(find_previous(((i-1,j),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
+        return history
+    
     if cell[1] == 'd':
         curr = d[i][j]
         if curr ==  d[i-1][j-1]+substitution(seq1[i],seq2[j]): 
@@ -258,3 +223,10 @@ def visualize_traceback_test():
     print(s1)
     print(signs)
     print(s2)
+
+def size(matrix):
+    row = len(matrix)
+    col = len(matrix[0][:])
+    # check that all rows have same length
+    [print("Error: matrix is not rectangular") for r in matrix if col != len(r)]
+    return row, col
