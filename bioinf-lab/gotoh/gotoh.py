@@ -41,7 +41,7 @@ def score_of_alignment(align_seq1, align_seq2, cost_open,
             else:
                 score+=cost_open + cost_extension
         else:
-            score+=substitution(align_seq1[i],align_seq2[i])
+            score+=substitution((align_seq1[i],align_seq2[i]))
     return score
 
 def initd(seq1, seq2, cost_open, cost_extend):
@@ -98,12 +98,12 @@ def complete_d_p_q_computation(seq1, seq2, cost_open, cost_extend, substitution=
         for j in range(1,size(d)[1]):
             p[i][j] = max([d[i-1][j]+cost_open+cost_extend,p[i-1][j]+cost_extend])
             q[i][j] = max([d[i][j-1]+cost_open+cost_extend,q[i][j-1]+cost_extend])
-            # cost = 1 if seq1[i] == seq2[j] else -1
-            d[i][j] = max([d[i-1][j-1]+substitution(seq1[i],seq2[j]),p[i][j],q[i][j]])
+            substitution(seq1[i],seq2[j])
+            d[i][j] = max([d[i-1][j-1]+substitution((seq1[i],seq2[j])),p[i][j],q[i][j]])
     return d,p,q
 
-def dna_sub(a,b):
-    return 1 if a == b else -1
+def dna_sub(ins):
+    return 1 if ins[0] == ins[1] else -1
 
 
 """
@@ -162,7 +162,7 @@ def find_previous(cell, seq1, seq2, d, p, q,
     
     if cell[1] == 'd':
         curr = d[i][j]
-        if curr ==  d[i-1][j-1]+substitution(seq1[i],seq2[j]): 
+        if curr ==  d[i-1][j-1]+substitution((seq1[i],seq2[j])): 
             parent_cells.append(find_previous(((i-1,j-1),'d', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))
         if curr == p[i][j]:
             parent_cells.append(find_previous(((i,j),'p', counter) ,seq1, seq2, d, p, q,cost_open, cost_extend, history,substitution))

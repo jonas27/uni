@@ -1,0 +1,70 @@
+Tested sequences: (1, 2)
+With score: 33 and 2 possible alignments. 
+ILDMDVVEGSAARFDCKVEG_YPDPEVMWFKDDNP___VKESRHFQIDYDEEGN
+|||||||**||||||*|||| **|||||*|||||*   ||||***    |||||
+RDPVKTHEGWGVMLPCNPPAHYPGLSYRWLLNEFPNFIPTDGRHF____VSQTT
+
+ILDMDVVEGSAARFDCKVEG_YPDPEVMWFKDDNP___VKESRHFQIDYDEEGN
+|||||||**||||||*|||| **|||||*|||||*   ||||***|    ||||
+RDPVKTHEGWGVMLPCNPPAHYPGLSYRWLLNEFPNFIPTDGRHFV____SQTT
+
+
+
+
+Tested sequences: (1, 3)
+With score: 64 and 2 possible alignments. 
+ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN
+*|*|||||**||*||*|||*|*|*|*|*|||||*|||||||||     ||
+ISDTEADIGSNLRWGCAAAGKPRPMVRWLRNGEPLASQNRVEV_____LA
+
+ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN
+*|*|||||**||*||*|||*|*|*|*|*|||||*||||||||||     |
+ISDTEADIGSNLRWGCAAAGKPRPMVRWLRNGEPLASQNRVEVL_____A
+
+
+
+
+Tested sequences: (1, 4)
+With score: 32 and 2 possible alignments. 
+ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN
+||||||||*||||||*|||||*|||||*|*|||||||*|||||    |||
+RRLIPAARGGEISILCQPRAAPKATILWSKGTEILGNSTRVTV____TSD
+
+ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN
+||||||||*||||||*|||||*|||||*|*|||||||*||||||    ||
+RRLIPAARGGEISILCQPRAAPKATILWSKGTEILGNSTRVTVT____SD
+
+
+
+
+Tested sequences: (2, 3)
+With score: 17 and 2 possible alignments. 
+RDPVKTHEGWGVMLPCNPPAHYPGLSYRWLLNEFPNFIPTDGRHFVSQTT
+||||||||*||||||*|||||||||| ***|*|    |*||||||*||||
+ISDTEADIGSNLRWGCAAAGKPRPMV_RWLRNG____EPLASQNRVEVLA
+
+RDPVKTHEGWGVMLPCNPPAHYPGLSYRWLLNEFPNFIPTDGRHFVSQTT
+||||||||*||||||*|||||||||| ***|*||*  |||||*  *||||
+ISDTEADIGSNLRWGCAAAGKPRPMV_RWLRNGEP__LASQNR__VEVLA
+
+
+
+
+Tested sequences: (2, 4)
+With score: 9 and 1 possible alignments. 
+RDPVKTHEGWGVMLPCNPPAHYPGLSYRWLLNEFPNFIPTDGRHFVSQTT
+*|||||||*||||||*|*|*| *|||||*  |||||||||||*||*| ||
+RRLIPAARGGEISILCQPRAA_PKATILW__SKGTEILGNSTRVTVT_SD
+
+
+
+
+Tested sequences: (3, 4)
+With score: 45 and 1 possible alignments. 
+ISDTEADIGSNLRWGCAAAGKPRPMVRWLRNGEPLASQNRVEVLA_
+|||||*||*||||||*|||||*|||||*||||*|*||||**|*|| 
+RRLIPAARGGEISILCQPRAAPKATILWSKGTEILGNSTRVTVTSD
+
+
+
+

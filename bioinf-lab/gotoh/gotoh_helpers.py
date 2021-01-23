@@ -38,7 +38,7 @@ def read_substitution_matrix(file_substitution_matrix):
             scores[(matrix[0][col],matrix[row][0])] = int(matrix[row][col])
     # Close file to prevent mem leak
     file.close()
-    return scores
+    return scores.get
 
 def show(matrix):
     for row in matrix:
