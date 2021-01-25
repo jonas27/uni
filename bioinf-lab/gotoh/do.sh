@@ -20,6 +20,11 @@ function lint {
     printf "_______End: linting done._______\n"
 }
 
+function help {
+    printf "Use for testing and linting.\n"
+    printf 'Should be used like this: "./do.sh -t -l"\n'
+}
+
 while test $# != 0
 do
     case "$1" in
@@ -27,6 +32,8 @@ do
     --test) tests ;;
     -l) lint ;;
     --lint) lint ;;
+    -h) help ;;
+    --help) help ;;
     esac
     shift
 done
