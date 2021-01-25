@@ -1,23 +1,32 @@
+"""
+test_gotoh_unit tests the functions for both, gotoh and gotoh_helpers.
+"""
 import unittest
 from unittest.mock import patch
 import gotoh
 import gotoh_helpers as helpers
 
 
-class Test_GotohUnitTest(unittest.TestCase):
-    
+class TestGotohUnitTest(unittest.TestCase):
+    """
+    TestGotohUnitTest unittest class
+    """
+
     def test_build_alignment(self):
         tests =[
         [[" ","C","G","G"],[" ","C","C","G","A"],
-            [((0, 0), 'd', 4), ((0, 1), 'd', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],
+            [((0, 0), 'd', 4), ((0, 1), 'd', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1),
+            ((3, 4), 'd', 0)],
             ['_', 'C', 'G', 'G'],['C', 'C', 'G', 'A'],[' ', '*', '*', '|'],
             ],
         [[" ","C","G","G"],[" ","C","C","G","A"],
-            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((1, 2), 'q', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],
+            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((1, 2), 'q', 3), ((1, 2), 'd', 2),
+            ((2, 3), 'd', 1), ((3, 4), 'd', 0)],
             ['C', '_', 'G', 'G'],['C', 'C', 'G', 'A'],['*', ' ', '*', '|'],
             ],
         [[" ","C","G","G"],[" ","C","C","G","A"],
-            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((2, 2), 'd', 3), ((3, 3), 'd', 2), ((3, 4), 'q', 1), ((3, 4), 'd', 0)],
+            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((2, 2), 'd', 3), ((3, 3), 'd', 2),
+            ((3, 4), 'q', 1), ((3, 4), 'd', 0)],
             ['C', 'G', 'G', '_'],['C', 'C', 'G', 'A'],['*', '|', '*', ' '],
             ],
         ]
@@ -26,11 +35,11 @@ class Test_GotohUnitTest(unittest.TestCase):
             self.assertEqual(s1,t[3])
             self.assertEqual(s2,t[4])
             self.assertEqual(signs,t[5])
-    
+
     def test_complete_d_p_q_computation(self):
         seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
         d,p,q = gotoh.complete_d_p_q_computation(seq1,seq2,-3,-1,gotoh.dna_sub)
-        self.assertEqual(d[1], [-4, 1, -3, -4, -5]) 
+        self.assertEqual(d[1], [-4, 1, -3, -4, -5])
         self.assertEqual(p[2], [-10000000000, -3, -7, -8, -9])
         self.assertEqual(q[3], [-1000000, -10, -8, -8, -3])
 
@@ -38,7 +47,8 @@ class Test_GotohUnitTest(unittest.TestCase):
         seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
         d,p,q = gotoh.complete_d_p_q_computation(seq1,seq2,-3,-1,gotoh.dna_sub)
         p = gotoh.compute_tracebacks(seq1, seq2, d,p,q,-3,-1,gotoh.dna_sub)
-        self.assertIn([((0, 0), 'd', 4), ((0, 1), 'd', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],p)
+        self.assertIn([((0, 0), 'd', 4), ((0, 1), 'd', 3),
+            ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],p)
 
     def test_initd(self):
         tests = [
@@ -60,7 +70,8 @@ class Test_GotohUnitTest(unittest.TestCase):
 
     def test_initq(self):
         tests = [
-            ([" ","A","B"],[" ","A","B","C","D"],[0, -10000000000, -10000000000, -10000000000, -10000000000]),
+            ([" ","A","B"],[" ","A","B","C","D"],
+            [0, -10000000000, -10000000000, -10000000000, -10000000000]),
             ([" ","A","B"],[" ","A","B"],[-1000000, -10000000000, -10000000000])
         ]
         for test in tests:
@@ -76,11 +87,12 @@ class Test_GotohUnitTest(unittest.TestCase):
 
     def test_read_fasta_file(self):
         tests = [
-            (helpers.read_fasta_file("data/s1.fasta"), ' ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN')
+            (helpers.read_fasta_file("data/s1.fasta"),
+            ' ILDMDVVEGSAARFDCKVEGYPDPEVMWFKDDNPVKESRHFQIDYDEEGN')
         ]
         for t in tests:
             self.assertEqual(''.join(t[0]),t[1])
-        
+
     def test_read_substitution_matrix(self):
         sub = helpers.read_substitution_matrix("data/pam250.txt")
         self.assertEqual(sub(('*','*')),1)
@@ -95,10 +107,19 @@ class Test_GotohUnitTest(unittest.TestCase):
             p = gotoh.initp(test[0],test[1])
             self.assertEqual(gotoh.size(p),test[2])
 
+    def test_size_wrong(self):
+        tests = [
+            ([[[" ","A","B"],[" ","A","B","C"],[" ","A","B","C","D"]]]),
+        ]
+        for test in tests:
+            with self.assertRaises(Exception):
+                gotoh.size(test[0])
+
     @patch('builtins.print')
     def test_show(self, mock_print):
         tests = [
-            ([" ","A","B"],[" ","A","B","C","D"],[-10000000000, -10000000000, -10000000000, -10000000000, -10000000000]),
+            ([" ","A","B"],[" ","A","B","C","D"],
+            [-10000000000, -10000000000, -10000000000, -10000000000, -10000000000]),
             ([" ","A","B"],[" ","A","B"],[-10000000000, -10000000000, -10000000000])
         ]
         for t in tests:
@@ -108,4 +129,3 @@ class Test_GotohUnitTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

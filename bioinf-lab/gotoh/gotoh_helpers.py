@@ -1,6 +1,11 @@
+"""
+gotoh_helpers includes convience functions, but not necessary for the algorithm.
+"""
 
-# Read and append empty sapce in beginning
 def read_fasta_file(fasta_file):
+    """
+    Read and append empty sapce in beginning.
+    """
     file = open(fasta_file)
     line = file.readlines()[1].replace("\n","")
     sequence = list(" " + line)
@@ -28,7 +33,8 @@ def read_substitution_matrix(file_substitution_matrix):
         else:
             line=[]
             line.append(list(l)[0])
-            istr = [x.strip('') for x in ''.join(list(l)[3:]).replace("\n","").replace("  ", " ").split(" ")]
+            istr = [x.strip('') for x in
+                ''.join(list(l)[3:]).replace("\n","").replace("  ", " ").split(" ")]
             line.extend(istr)
             matrix.append(line)
 
@@ -36,10 +42,12 @@ def read_substitution_matrix(file_substitution_matrix):
     for row in range(1,len(matrix)):
         for col in range(1,len(matrix[0])):
             scores[(matrix[0][col],matrix[row][0])] = int(matrix[row][col])
-    # Close file to prevent mem leak
     file.close()
     return scores.get
 
 def show(matrix):
+    """
+    show is a convience method to print a matrix.
+    """
     for row in matrix:
         print(row)
