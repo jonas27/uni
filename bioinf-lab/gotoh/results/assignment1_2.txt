@@ -1,0 +1,8 @@
+Score 2 and 1 optimal alignments. 
+ATTCACTAGATTACCTTCACT
+        *************
+________GATTACCTTCACT
+
+
+
+

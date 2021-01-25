@@ -6,6 +6,27 @@ import gotoh_helpers as helpers
 
 class Test_GotohUnitTest(unittest.TestCase):
     
+    def test_build_alignment(self):
+        tests =[
+        [[" ","C","G","G"],[" ","C","C","G","A"],
+            [((0, 0), 'd', 4), ((0, 1), 'd', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],
+            ['_', 'C', 'G', 'G'],['C', 'C', 'G', 'A'],[' ', '*', '*', '|'],
+            ],
+        [[" ","C","G","G"],[" ","C","C","G","A"],
+            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((1, 2), 'q', 3), ((1, 2), 'd', 2), ((2, 3), 'd', 1), ((3, 4), 'd', 0)],
+            ['C', '_', 'G', 'G'],['C', 'C', 'G', 'A'],['*', ' ', '*', '|'],
+            ],
+        [[" ","C","G","G"],[" ","C","C","G","A"],
+            [((0, 0), 'd', 5), ((1, 1), 'd', 4), ((2, 2), 'd', 3), ((3, 3), 'd', 2), ((3, 4), 'q', 1), ((3, 4), 'd', 0)],
+            ['C', 'G', 'G', '_'],['C', 'C', 'G', 'A'],['*', '|', '*', ' '],
+            ],
+        ]
+        for t in tests:
+            s1,s2,signs = gotoh.build_alignment(t[0],t[1],t[2])
+            self.assertEqual(s1,t[3])
+            self.assertEqual(s2,t[4])
+            self.assertEqual(signs,t[5])
+    
     def test_complete_d_p_q_computation(self):
         seq1, seq2 = [" ","C","G","G"],[" ","C","C","G","A"]
         d,p,q = gotoh.complete_d_p_q_computation(seq1,seq2,-3,-1,gotoh.dna_sub)
@@ -61,9 +82,9 @@ class Test_GotohUnitTest(unittest.TestCase):
             self.assertEqual(''.join(t[0]),t[1])
         
     def test_read_substitution_matrix(self):
-        scores = helpers.read_substitution_matrix("data/pam250.txt")
-        self.assertEqual(scores.get(('*','*')),1)
-        self.assertEqual(scores.get(('R','A')),-2)
+        sub = helpers.read_substitution_matrix("data/pam250.txt")
+        self.assertEqual(sub(('*','*')),1)
+        self.assertEqual(sub(('R','A')),-2)
 
     def test_size(self):
         tests = [
@@ -80,12 +101,10 @@ class Test_GotohUnitTest(unittest.TestCase):
             ([" ","A","B"],[" ","A","B","C","D"],[-10000000000, -10000000000, -10000000000, -10000000000, -10000000000]),
             ([" ","A","B"],[" ","A","B"],[-10000000000, -10000000000, -10000000000])
         ]
-        for test in tests:
-            p = gotoh.initp(test[0],test[1])
+        for t in tests:
+            p = gotoh.initp(t[0],t[1])
             helpers.show(p)
-            mock_print.assert_called_with(test[2])
-
-
+            mock_print.assert_called_with(t[2])
 
 if __name__ == "__main__":
     unittest.main()

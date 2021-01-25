@@ -18,25 +18,33 @@ class Test_GotohUnitTest(unittest.TestCase):
         for i in range(2):
             f = None
             if i == 0:
-                open("scores_blossum.csv", "w").close()
-                f = open("scores_blossum.csv", "a")
+                f = open("results/scores_blosum62.csv", "w")
             elif i == 1:
-                open("scores_pam.csv", "w").close()
-                f = open("scores_pam.csv", "a")
+                f = open("results/scores_pam250.csv", "w")
             for t in tests:
                 if i == 0:
-                    t[4] = read_substitution_matrix('data/pam250.txt') 
-                elif i == 1:
                     t[4] = read_substitution_matrix('data/blosum62.txt')
+                elif i == 1:
+                    t[4] = read_substitution_matrix('data/pam250.txt') 
                 score, alignments = gotoh.gotoh(t[0],t[1],t[2],t[3],t[4])
-                f.write(t[5]+'\nWith score: ' + str(score) + ' and ' + str(len(alignments)) + ' possible alignments. \n')
+                f.write(t[5]+'\nWith score ' + str(score) + ' and ' + str(len(alignments)) + ' optimal alignments. \n')
                 for a in alignments:
                     f.write(''.join(a[0])+'\n')
                     f.write(''.join(a[2])+'\n')
                     f.write(''.join(a[1])+'\n\n')
                 f.write('\n\n\n') 
             f.close()
-
+        iss = ["results/scores_pam250.csv","results/scores_blosum62.csv"]
+        shoulds = ["results/scores_pam250_should.csv","results/scores_blosum62_should.csv"]
+        for i in range(len(shoulds)):
+            file_is = open(iss[i], "r")
+            lines_is = file_is.readlines()
+            file_should = open(shoulds[i], "r")
+            lines_should = file_should.readlines()
+            for i in range(len(lines_is)):
+                self.assertEqual(lines_is[i], lines_should[i])
+            file_is.close()
+            file_should.close()
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,44 @@
+Score -10 and 10 optimal alignments. 
+AATCCGCTAGAAACCCTTAG
+ ***      ||***|*|*|
+_ATC______TTACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+* **      ||***|*|*|
+A_TC______TTACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+*    |**   |***|*|*|
+A____TCT___TACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+*|    **   |***|*|*|
+AT____CT___TACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+ ***|      |***|*|*|
+_ATCT______TACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+* **|      |***|*|*|
+A_TCT______TACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+*    |**|   ***|*|*|
+A____TCTT___ACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+*|    **|   ***|*|*|
+AT____CTT___ACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+ ***||      ***|*|*|
+_ATCTT______ACCTTCAT
+
+AATCCGCTAGAAACCCTTAG
+* **||      ***|*|*|
+A_TCTT______ACCTTCAT
+
+
+
+
