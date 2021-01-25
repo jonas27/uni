@@ -1,5 +1,7 @@
 """
-gotoh.py
+gotoh has a main function 'gotoh' and a convience class 'Gotoh'.
+The class only has one method which in turn just runs the gotoh method.
+(I guess we should have this. I would rather delete the class.)
 """
 
 def gotoh(seq1, seq2, cost_open, cost_extension, substition=None):
