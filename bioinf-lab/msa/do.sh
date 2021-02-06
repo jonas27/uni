@@ -4,14 +4,14 @@ set -e
 # Start all tests
 function tests {
     printf "_______Start: Run all tests._______\n"
-    python pkg/test_msa.py 
+    python test_msa.py 
     printf "_______End: RUn all tests._______\n\n\n"
 }
 
 function lint {
     printf "_______Start: lint all files._______\n"
-    pylint pkg/msa.py | grep -v "doesn't conform to snake_case\|Too many"
-    pylint pkg/test_msa.py | grep -v "doesn't conform to \|method docstring"
+    pylint msa.py | grep -v "doesn't conform to snake_case\|Too many"
+    pylint test_msa.py | grep -v "doesn't conform to \|method docstring"
     printf "_______End: linting done._______\n"
 }
 

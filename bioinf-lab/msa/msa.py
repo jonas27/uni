@@ -1,6 +1,7 @@
 """
 msa is an implementation for a 3 sequences aligment.
-it exports the run method.
+It exports the run method.
+It uses '-' as final gap sign.
 """
 
 from gotoh import gotoh, dna_sub
@@ -8,6 +9,7 @@ from gotoh import gotoh, dna_sub
 def run(seq1, seq2, seq3, gap_open, gap_extend, substitions=None):
     """
     run is the main method, used to find a msa.
+    sequences are char lists with leading empty char.
     """
     if substitions is None :
         substitions = dna_sub
@@ -31,7 +33,7 @@ def _align_final(correct_align, expand_align, aligned):
     alignments.sort(key=lambda x: x[0])
     aligns = []
     for align in alignments:
-        aligns.append(['#' if x == '_' else x for x in align[1]])
+        aligns.append(['-' if x == '_' or x == '#' else x for x in align[1]])
     return aligns
 
 def _bestPairwiseAlign(seq1,seq2,seq3,gap_open,gap_extend, substitions):
